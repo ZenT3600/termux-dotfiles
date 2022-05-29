@@ -1,5 +1,10 @@
 source "${EXTERNAL_STORAGE}/termuxlauncher/.apps-launcher"
 
+function inputfromvim() {
+	ls $HOME/.tmp 2> /dev/null || mkdir $HOME/.tmp
+        nvim $HOME/.tmp/$1
+}
+
 function header() {
 	neofetch
 	echo
@@ -21,6 +26,17 @@ function name2num() {
 }
 alias call="name2num | xargs termux-telephony-call"
 alias callnum="termux-telephony-call"
+function sms() {
+	num=$(name2num)
+	inputfromvim sms.input
+	cat $HOME/.tmp/sms.input | termux-sms-send -n $num
+	rm $HOME/.tmp/sms.input
+}
+function smsnum() {
+	inputfromvim sms.input
+	cat $HOME/.tmp/sms.input | termux-send-sms -n $1
+	rm $HOME/.tmp/sms.input
+}
 
 alias la="ls -la"
 alias ls="ls -l"

@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+source "${EXTERNAL_STORAGE}/termuxlauncher/.apps-launcher"
+
+TOP_PATH=$HOME/folders
+BOTTOM_PATH=$(ls $TOP_PATH | awk '{print $NF}' | fzf)
+launch $(ls $TOP_PATH/$BOTTOM_PATH | awk '{print $NF}' | fzf)

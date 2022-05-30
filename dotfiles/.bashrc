@@ -49,7 +49,7 @@ alias tw="launch twitch"
 alias yt="launch newpipe-sponsorblock"
 alias em="launch email"
 
-alias open="launch \$(launch --list | fzf)"
+alias app="launch \$(launch --list | fzf)"
 
 export PATH="$PATH:$HOME/scripts"
 export GPG_TTY=$(tty)

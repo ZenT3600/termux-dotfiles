@@ -22,5 +22,5 @@ pv < $FOLDER.tar.gz | gpg -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
 
 echo "Removing unnecessary files" | glow -
 
-rm -rf !($FOLDER.tar.gz.gpg)
+rm -rfv !($FOLDER.tar.gz.gpg) | pv -l -s $(du -a !($FOLDER.tar.gz.gpg) | wc -l) > /dev/null
 shopt -u extglob

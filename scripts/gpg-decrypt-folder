@@ -19,5 +19,5 @@ pv < $FOLDER.tar | tar xzf -
 
 echo "Removing unnecessary files" | glow -
 
-rm $FOLDER.tar*
+rm -fv $FOLDER.tar* | pv -l -s $(du -a $FOLDER.tar* | wc -l) > /dev/null
 shopt -u extglob

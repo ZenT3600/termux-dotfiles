@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+PID=$1
+while [[ ( -d /proc/$PID ) && ( -z `grep zombie /proc/$PID/status` ) ]]; do
+        exec $2
+done

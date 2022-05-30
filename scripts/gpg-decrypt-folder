@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+
+set -e
+shopt -s extglob
+
+FOLDER=$1
+[ -z "$FOLDER" ] && exit
+
+echo "Using *gpg* utility to decrypt the archive **$FOLDER.tar.gz.gpg**" | glow -
+
+gpg -v -d $FOLDER.tar.gz.gpg > $FOLDER.tar.gz
+echo -n "Tar Size: "
+du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
+
+echo "Using *tar* utility to decompress archive **$FOLDER.tar.gz**" | glow -
+
+tar xvf $FOLDER.tar.gz
+
+echo "Removing unnecessary files" | glow -
+
+rm $FOLDER.tar.gz*
+shopt -u extglob

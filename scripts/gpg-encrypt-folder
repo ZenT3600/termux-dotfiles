@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+set -e
+
+EMAIL=$(whatismyemail)
+FOLDER=$1
+[ -z "$FOLDER" ] && exit
+
+shopt -s extglob
+
+echo "Using *tar* utility to compress the contents of the current folder into **$FOLDER.tar.gz**" | glow -
+
+tar czvf $FOLDER.tar.gz ./*
+echo -n "Tar Size: "
+du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
+
+echo "Using *gpg* utility to encrypt the archive **$FOLDER.tar.gz** using recipient email **$EMAIL**" | glow -
+
+gpg -v -e --recipient "$EMAIL" $FOLDER.tar.gz
+echo -n "GPG Size: "
+du -h $FOLDER.tar.gz.gpg | tail -n1 | awk '{print $1}'
+
+echo "Removing unnecessary files" | glow -
+
+rm -rf !($FOLDER.tar.gz.gpg)
+shopt -u extglob

@@ -4,5 +4,6 @@ CPATH="$HOME/repos/termux-dotfiles"
 for f in $CPATH/dotfiles/.*; do
 	f=$(basename $f)
 	echo $f
-	file dotfiles/$f | grep directory -q && continue || ln -s $CPATH/dotfiles/$f $HOME/$f
+	file dotfiles/$f | grep directory -q && continue || ln -fs $CPATH/dotfiles/$f $HOME/$f
 done
+ln -s $CPATH/scripts $HOME/scripts

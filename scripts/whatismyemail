@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+gpg --list-keys | tail -n3 | head -n1 | awk '{print $NF}' | cut -c2- | rev | cut -c2- | rev

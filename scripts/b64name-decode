@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+FNAME="${1%.*}"
+echo $FNAME | base64 -d

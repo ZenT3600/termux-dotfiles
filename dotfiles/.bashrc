@@ -1,4 +1,4 @@
-source "${EXTERNAL_STORAGE}/termuxlauncher/.apps-launcher"
+source "$HOME/storage/shared/termuxlauncher/.apps-launcher"
 
 function inputfromvim() {
 	ls $HOME/.tmp 2> /dev/null || mkdir $HOME/.tmp
@@ -49,12 +49,14 @@ alias tw="launch twitch"
 alias yt="launch newpipe-sponsorblock"
 alias em="launch email"
 
-alias app="launch \$(launch --list | fzf)"
+alias app="launch \$(launch --list | tr \"[:upper:]\" \"[:lower:]\" | uniq | fzf)"
 
-export PATH="$PATH:$HOME/scripts"
+export PATH="$PATH:$HOME/scripts:$HOME/.cargo/bin"
 export GPG_TTY=$(tty)
 
-PS1='\[\e[0;1m\][\[\e[0;2m\]\t\[\e[0;1m\]] \[\e[0;36m\]\u\[\e[0m\]@\[\e[0;36m\]\h \[\e[0m\](\[\e[0;36m\]\w\[\e[0m\])\n\[\e[0m\][\[\e[0;2m\]$(ip route get 1.1.1.1 | awk -F"src " '"'"'NR==1{split($2,a," ");print a[1]}'"'"')\[\e[0m\]] \[\e[0m\]\$\[\e[0m\] '
+PS1='\[\e[0;1m\][\[\e[0;2m\]\t\[\e[0;1m\]] \[\e[0;36m\]\u\[\e[0m\]@\[\e[0;36m\]\h \[\e[0m\](\[\e[0;36m\]\w\[\e[0m\]) \$\[\e[0m\] '
 
-notificationd
-header
+# websocat -t ws-l:127.0.0.1:1234 broadcast:mirror: 1> /dev/null || echo "Notification Server Already Started." || echo "Notification Websocket Started!"
+# websocat ws://127.0.0.1:8080/ &
+# [ -z "${TMUX}" ] && notificationd &
+[ -z "${TMUX}" ] && header

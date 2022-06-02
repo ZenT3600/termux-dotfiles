@@ -1,4 +1,0 @@
-#!/usr/bin/bash
-
-FILE=$(echo "$1 $2 $3" | base64)
-echo -e "$1\n$2\n$3" > $HOME/.notifications/$FILE

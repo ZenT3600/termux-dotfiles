@@ -6,4 +6,4 @@ for f in $CPATH/dotfiles/.*; do
 	echo $f
 	file dotfiles/$f | grep directory -q && continue || ln -fs $CPATH/dotfiles/$f $HOME/$f
 done
-ln -s $CPATH/scripts $HOME/scripts
+ln -fs $CPATH/scripts $HOME/scripts

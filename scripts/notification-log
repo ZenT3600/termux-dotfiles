@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+HF="$HOME/.notifications"
+echo "*$1 - $(date)*" >> $HF
+echo "# $2" >> $HF
+echo "> $3" >> $HF
+echo "---" >> $HF

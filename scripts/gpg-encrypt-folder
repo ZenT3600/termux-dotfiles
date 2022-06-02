@@ -4,13 +4,16 @@ set -e
 
 EMAIL=$(whatismyemail)
 FOLDER=$1
+TARGETS=${@:2}
 [ -z "$FOLDER" ] && exit
+[ -z "$TARGETS" ] && exit
 
 shopt -s extglob
 
-echo "Using *gzip + tar* utilities to compress the contents of the current folder into **$FOLDER.tar.gz**" | glow -
+echo "Using *gzip + tar* utilities to compress the selected targets into **$FOLDER.tar.gz**" | glow -
 
-tar czf - ./* -P | pv -s $(du -sb . | awk '{print $1}') | gzip > $FOLDER.tar.gz
+SIZE=$(printf '%q' $TARGETS | du -sbc | tail -n1 | awk '{print $1}')
+tar czf - $TARGETS -P | pv -s $SIZE | gzip > $FOLDER.tar.gz
 # echo -n "Tar Size: "
 # du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
 
@@ -22,5 +25,5 @@ pv < $FOLDER.tar.gz | gpg -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
 
 echo "Removing unnecessary files" | glow -
 
-rm -rfv !($FOLDER.tar.gz.gpg) | pv -l -s $(du -a !($FOLDER.tar.gz.gpg) | wc -l) > /dev/null
+rm -rfv $TARGETS $FOLDER.tar.gz | pv -l -s $(du -a $FOLDER.tar.gz $TARGETS | wc -l) > /dev/null
 shopt -u extglob

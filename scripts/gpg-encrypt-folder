@@ -19,7 +19,7 @@ tar czf - $TARGETS -P | pv -s $SIZE | gzip > $FOLDER.tar.gz
 
 echo "Using *gpg* utility to encrypt the archive **$FOLDER.tar.gz** using recipient email **$EMAIL**" | glow -
 
-pv < $FOLDER.tar.gz | gpg -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
+pv < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
 # echo -n "GPG Size: "
 # du -h $FOLDER.tar.gz.gpg | tail -n1 | awk '{print $1}'
 

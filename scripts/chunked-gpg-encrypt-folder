@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+set -e
+shopt -s extglob
+
+FOLDER=$1
+TARGETS=(${@:2})
+[ -z "$FOLDER" ] && exit
+[ -z "$TARGETS" ] && exit
+
+CHUNK_SIZE=4
+
+for((i=0; i < ${#TARGETS[@]}; i+=CHUNK_SIZE))
+do
+	CHUNK=("${TARGETS[@]:i:CHUNK_SIZE}")
+	echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | glow -
+	gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+done
+
+shopt -u extglob

@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# 1 / First Level Chunks
+# 2 / File Count Chunks
+MODE=2
+
 set -e
 shopt -s extglob
 
@@ -8,13 +12,36 @@ TARGETS=(${@:2})
 [ -z "$FOLDER" ] && exit
 [ -z "$TARGETS" ] && exit
 
-CHUNK_SIZE=4
+function first-level-chunks() {
+	# CHUNK_SIZE First Level Elements Per Chunk
+	CHUNK_SIZE=4
 
-for((i=0; i < ${#TARGETS[@]}; i+=CHUNK_SIZE))
-do
-	CHUNK=("${TARGETS[@]:i:CHUNK_SIZE}")
-	echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | glow -
-	gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
-done
+	for((i=0; i < ${#TARGETS[@]}; i+=CHUNK_SIZE))
+	do
+		CHUNK=("${TARGETS[@]:i:CHUNK_SIZE}")
+		echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | glow -
+		gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+	done
+}
 
+function file-count-chunks() {
+	# CHUNK_SIZE Files Per Chunk
+        CHUNK_SIZE=512
+
+	RECU_TARGETS=($(find ${TARGETS[*]} -type f))
+
+        for((i=0; i < ${#RECU_TARGETS[@]}; i+=CHUNK_SIZE))
+        do
+                CHUNK=("${RECU_TARGETS[@]:i:CHUNK_SIZE}")
+                echo "Starting encryption on chunk N#$i. Elements in this group: n.${#CHUNK[@]}" | glow -
+                gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+		# Remove Empty Folders As To Not Leak The Folder Structure
+		echo ${TARGETS[*]} | while read f; do
+			dirname $f
+		done | uniq | xargs -I{} find "{}" -type d -empty -delete
+        done
+}
+
+test $MODE == 1 && first-level-chunks
+test $MODE == 2 && file-count-chunks
 shopt -u extglob

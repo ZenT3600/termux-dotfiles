@@ -1,8 +1,11 @@
 #!/usr/bin/bash
 
-# 1 / First Level Chunks
-# 2 / File Count Chunks
-MODE=2
+if [ -f .env ]; then
+	# MODE Is Sourced From Here
+	export $(cat .env | xargs)
+else
+	MODE=1
+fi
 
 set -e
 shopt -s extglob
@@ -28,7 +31,8 @@ function file-count-chunks() {
 	# CHUNK_SIZE Files Per Chunk
         CHUNK_SIZE=512
 
-	RECU_TARGETS=($(find ${TARGETS[*]} -type f))
+	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -na
+me ".env"))
 
         for((i=0; i < ${#RECU_TARGETS[@]}; i+=CHUNK_SIZE))
         do
@@ -42,6 +46,40 @@ function file-count-chunks() {
         done
 }
 
+function file-size-chunks() {
+	# CHUNK_SIZE Bytes Per Chunk
+	CHUNK_SIZE=200000	# ~150M
+
+	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -name ".env"))
+
+	while true
+	do
+		CHUNK=()
+		i=0
+		for f in ${RECU_TARGETS[*]}; do
+			(( i+=1 ))
+			if [ ! -f $f ]; then
+				continue
+			fi
+			CHUNK+=($f)
+			S=$(du -c ${CHUNK[*]:-/dev/null} | tail -n1 | awk '{print $1}')
+			if (( $S >= $CHUNK_SIZE )); then
+				break
+			fi
+		done
+		if [ "${CHUNK[*]}" == "" ]; then
+			break
+		fi
+		echo "Starting encryption on chunk N#$i. Chunk size: $S" | glow -
+		gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+		# Remove Empty Folders As To Not Leak The Folder Structure
+		echo ${TARGETS[*]} | while read f; do
+			dirname $f
+		done | uniq | xargs -I{} find "{}" -type d -empty -delete
+	done
+}
+
 test $MODE == 1 && first-level-chunks
 test $MODE == 2 && file-count-chunks
+test $MODE == 3 && file-size-chunks
 shopt -u extglob

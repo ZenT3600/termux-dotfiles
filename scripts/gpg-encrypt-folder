@@ -25,5 +25,5 @@ pv < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > $F
 
 echo "Removing unnecessary files" | glow -
 
-rm -rfv $TARGETS $FOLDER.tar.gz | pv -l -s $(du -a $FOLDER.tar.gz $TARGETS | wc -l) > /dev/null
+rm -rfv $TARGETS $FOLDER.tar.gz | pv -l -s $(du -a $FOLDER.tar.gz $TARGETS 2> /dev/null | wc -l) > /dev/null
 shopt -u extglob

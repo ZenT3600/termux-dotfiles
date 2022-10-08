@@ -3,11 +3,24 @@
 set -e
 shopt -s extglob
 
+if [ -f .env ]; then
+        # MODE Is Sourced From Here
+	export $(cat .env | xargs)
+else
+	MODE=1
+	PARANOID=0
+fi
+
 FOLDER=$1
 [ -z "$FOLDER" ] && exit
 
+if [ $PARANOID -eq 1 ]; then
+	echo -n "Password: "
+	read -s PASSWD
+fi
+
 find $FOLDER+* -maxdepth 1 | while read f; do
 	echo "Starting decryption on chunk $f" | glow -
-	gpg-decrypt-folder "$(basename $f .tar.gz.gpg)"
+	gpg-decrypt-folder "$(basename $f | cut -f 1 -d '.')" "$PASSWD"
 done
 shopt -u extglob

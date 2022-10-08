@@ -6,9 +6,13 @@ shopt -s extglob
 FOLDER=$1
 [ -z "$FOLDER" ] && exit
 
-echo "Using *gpg* utility to decrypt the archive **$FOLDER.tar.gz.gpg**" | glow -
+echo "Using *gpg* utility to decrypt the archive **$FOLDER**" | glow -
 
-pv < $FOLDER.tar.gz.gpg | gpg --trust-model always -q -d - > $FOLDER.tar.gz
+if [ -z "$2" ]; then
+	pv < $FOLDER.tar.gz.gpg | gpg --trust-model always -q -d - > $FOLDER.tar.gz
+else
+	pv < $FOLDER.tar.gz.gpg | gpg --batch --yes --pinentry-mode loopback --passphrase "$2" --trust-model always -q -d - > $FOLDER.tar.gz
+fi
 # echo -n "Tar Size: "
 # du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
 

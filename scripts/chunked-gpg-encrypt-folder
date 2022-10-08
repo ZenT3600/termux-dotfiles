@@ -5,6 +5,7 @@ if [ -f .env ]; then
 	export $(cat .env | xargs)
 else
 	MODE=1
+	PARANOID=0
 fi
 
 set -e
@@ -18,18 +19,26 @@ TARGETS=(${@:2})
 function first-level-chunks() {
 	# CHUNK_SIZE First Level Elements Per Chunk
 	CHUNK_SIZE=4
+	EMAIL=$(whatismyemail)
 
 	for((i=0; i < ${#TARGETS[@]}; i+=CHUNK_SIZE))
 	do
 		CHUNK=("${TARGETS[@]:i:CHUNK_SIZE}")
 		echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | glow -
-		gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+		if [ $PARANOID -eq 1 ]; then
+			KN=$((i % 5 + 1))
+			echo "Using paranoid mode and key N#$KN" | glow -
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+		else
+			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+		fi
 	done
 }
 
 function file-count-chunks() {
 	# CHUNK_SIZE Files Per Chunk
         CHUNK_SIZE=512
+	EMAIL=$(whatismyemail)
 
 	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -na
 me ".env"))
@@ -38,7 +47,13 @@ me ".env"))
         do
                 CHUNK=("${RECU_TARGETS[@]:i:CHUNK_SIZE}")
                 echo "Starting encryption on chunk N#$i. Elements in this group: n.${#CHUNK[@]}" | glow -
-                gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+		if [ $PARANOID -eq 1 ]; then
+			KN=$((i % 5 + 1))
+			echo "Using paranoid mode and key N#$KN" | glow -
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+		else
+                	gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+		fi
 		# Remove Empty Folders As To Not Leak The Folder Structure
 		echo ${TARGETS[*]} | while read f; do
 			dirname $f
@@ -48,7 +63,8 @@ me ".env"))
 
 function file-size-chunks() {
 	# CHUNK_SIZE Bytes Per Chunk
-	CHUNK_SIZE=200000	# ~150M
+	CHUNK_SIZE=200000	# ~200M
+	EMAIL=$(whatismyemail)
 
 	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -name ".env"))
 
@@ -71,7 +87,13 @@ function file-size-chunks() {
 			break
 		fi
 		echo "Starting encryption on chunk N#$i. Chunk size: $S" | glow -
-		gpg-encrypt-folder "$FOLDER+$i" ${CHUNK[*]}
+		if [ $PARANOID -eq 1 ]; then
+			KN=$((i % 5 + 1))
+			echo "Using paranoid mode and key N#$KN" | glow -
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+		else
+			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+		fi
 		# Remove Empty Folders As To Not Leak The Folder Structure
 		echo ${TARGETS[*]} | while read f; do
 			dirname $f

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-CPATH="$HOME/repos/termux-dotfiles"
-for f in $CPATH/dotfiles/.*; do
+CPATH="$(dirname $0)"
+find $CPATH/dotfiles/ -type f | while read f; do
 	f=$(basename $f)
 	echo $f
-	file dotfiles/$f | grep directory -q && continue || ln -fs $CPATH/dotfiles/$f $HOME/$f
+	ln -fs $CPATH/dotfiles/$f $HOME/$f
 done
-ln -fs $CPATH/scripts $HOME/scripts
+ln -dfs $CPATH/scripts $HOME/scripts

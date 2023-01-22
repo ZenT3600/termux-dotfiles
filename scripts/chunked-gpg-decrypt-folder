@@ -4,11 +4,11 @@ set -e
 shopt -s extglob
 
 if [ -f .env ]; then
-        # MODE Is Sourced From Here
 	export $(cat .env | xargs)
 else
 	MODE=1
 	PARANOID=0
+	QUICK=0
 fi
 
 FOLDER=$1
@@ -21,6 +21,6 @@ fi
 
 find $FOLDER+* -maxdepth 1 | while read f; do
 	echo "Starting decryption on chunk $f" | glow -
-	gpg-decrypt-folder "$(basename $f | cut -f 1 -d '.')" "$PASSWD"
+	gpg-decrypt-folder "$(basename $f | cut -f 1 -d '.')" "$PASSWD" "$QUICK"
 done
 shopt -u extglob

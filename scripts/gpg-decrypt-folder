@@ -4,24 +4,27 @@ set -e
 shopt -s extglob
 
 FOLDER=$1
+PASSWD=$2
+QUICK=$3
 [ -z "$FOLDER" ] && exit
+test "$QUICK" = "0" && BAR="pv" || BAR="tee"
 
 echo "Using *gpg* utility to decrypt the archive **$FOLDER**" | glow -
 
-if [ -z "$2" ]; then
-	pv < $FOLDER.tar.gz.gpg | gpg --trust-model always -q -d - > $FOLDER.tar.gz
+if [ -z "$PASSWD" ]; then
+	$BAR < $FOLDER.tar.gz.gpg | gpg --trust-model always -q -d - > $FOLDER.tar.gz
 else
-	pv < $FOLDER.tar.gz.gpg | gpg --batch --yes --pinentry-mode loopback --passphrase "$2" --trust-model always -q -d - > $FOLDER.tar.gz
+	$BAR < $FOLDER.tar.gz.gpg | gpg --batch --yes --pinentry-mode loopback --passphrase "$PASSWD" --trust-model always -q -d - > $FOLDER.tar.gz
 fi
 # echo -n "Tar Size: "
 # du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
 
 echo "Using *gzip + tar* utilities to decompress archive **$FOLDER.tar.gz**" | glow -
 
-pv < $FOLDER.tar.gz | gzip -d - > $FOLDER.tar
-pv < $FOLDER.tar | tar xzf -
+$BAR < $FOLDER.tar.gz | gzip -d - > $FOLDER.tar
+$BAR < $FOLDER.tar | tar xzf -
 
 echo "Removing unnecessary files" | glow -
 
-rm -fv $FOLDER.tar* | pv -l -s $(du -a $FOLDER.tar* | wc -l) > /dev/null
+rm -fv $FOLDER.tar*
 shopt -u extglob

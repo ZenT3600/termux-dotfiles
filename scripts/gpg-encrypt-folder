@@ -4,9 +4,11 @@ set -e
 
 EMAIL=$2
 FOLDER=$1
-TARGETS=${@:3}
+QUICK=$3
+TARGETS=${@:4}
 [ -z "$FOLDER" ] && exit
 [ -z "$TARGETS" ] && exit
+[ "$QUICK" = "0" ] && BAR="pv" || BAR="tee"
 
 shopt -s extglob
 export GPG_TTY=$(tty)
@@ -14,17 +16,13 @@ export GPG_TTY=$(tty)
 echo "Using *gzip + tar* utilities to compress the selected targets into **$FOLDER.tar.gz**" | glow -
 
 SIZE=$(printf '%q' $TARGETS | du -sbc | tail -n1 | awk '{print $1}')
-tar czf - $TARGETS -P | pv -s $SIZE | gzip > $FOLDER.tar.gz
-# echo -n "Tar Size: "
-# du -h $FOLDER.tar.gz | tail -n1 | awk '{print $1}'
+[ "$QUICK" -eq "0" ] && tar czf - $TARGETS -P | pv -s $SIZE | gzip > $FOLDER.tar.gz || tar czf - $TARGETS -P | gzip > $FOLDER.tar.gz
 
 echo "Using *gpg* utility to encrypt the archive **$FOLDER.tar.gz** using recipient email **$EMAIL**" | glow -
 
-pv < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
-# echo -n "GPG Size: "
-# du -h $FOLDER.tar.gz.gpg | tail -n1 | awk '{print $1}'
+$BAR < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
 
 echo "Removing unnecessary files" | glow -
 
-rm -rfv $TARGETS $FOLDER.tar.gz | pv -l -s $(du -a $FOLDER.tar.gz $TARGETS 2> /dev/null | wc -l) > /dev/null
+rm -fv $TARGETS $FOLDER.tar.gz
 shopt -u extglob

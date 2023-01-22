@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 
 if [ -f .env ]; then
-	# MODE Is Sourced From Here
 	export $(cat .env | xargs)
 else
 	MODE=1
 	PARANOID=0
+	QUICK=0
 fi
 
 set -e
@@ -28,9 +28,9 @@ function first-level-chunks() {
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
 			echo "Using paranoid mode and key N#$KN" | glow -
-			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
-			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}
 		fi
 	done
 }
@@ -50,9 +50,9 @@ me ".env"))
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
 			echo "Using paranoid mode and key N#$KN" | glow -
-			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
-                	gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+                	gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}
 		fi
 		# Remove Empty Folders As To Not Leak The Folder Structure
 		echo ${TARGETS[*]} | while read f; do
@@ -90,9 +90,9 @@ function file-size-chunks() {
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
 			echo "Using paranoid mode and key N#$KN" | glow -
-			gpg-encrypt-folder "$FOLDER+$i" "K$KN" ${CHUNK[*]}
+			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
-			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" ${CHUNK[*]}
+			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}
 		fi
 		# Remove Empty Folders As To Not Leak The Folder Structure
 		echo ${TARGETS[*]} | while read f; do

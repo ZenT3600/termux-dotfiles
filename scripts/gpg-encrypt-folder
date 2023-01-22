@@ -9,6 +9,7 @@ TARGETS=${@:3}
 [ -z "$TARGETS" ] && exit
 
 shopt -s extglob
+export GPG_TTY=$(tty)
 
 echo "Using *gzip + tar* utilities to compress the selected targets into **$FOLDER.tar.gz**" | glow -
 

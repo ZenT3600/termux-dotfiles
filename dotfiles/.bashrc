@@ -1,8 +1,8 @@
-source "$HOME/storage/shared/termuxlauncher/.apps-launcher"
-
 function inputfromvim() {
 	ls $HOME/.tmp 2> /dev/null || mkdir $HOME/.tmp
         nvim $HOME/.tmp/$1
+	[ -s $HOME/.tmp/$1 ] && cat $HOME/.tmp/$1
+	rm $HOME/.tmp/$1
 }
 
 function header() {
@@ -28,28 +28,14 @@ alias call="name2num | xargs termux-telephony-call"
 alias callnum="termux-telephony-call"
 function sms() {
 	num=$(name2num)
-	inputfromvim sms.input
-	cat $HOME/.tmp/sms.input | termux-sms-send -n $num
-	rm $HOME/.tmp/sms.input
+	inputfromvim sms.input | termux-sms-send -n $num
 }
 function smsnum() {
-	inputfromvim sms.input
-	cat $HOME/.tmp/sms.input | termux-send-sms -n $1
-	rm $HOME/.tmp/sms.input
+	inputfromvim sms.input | termux-send-sms -n $1
 }
 
 alias la="ls -la"
 alias ls="ls -l"
-
-alias wa="launch whatsapp"
-alias ds="launch aliucord"
-alias tg="launch nekogram-x"
-alias rd="launch reddit"
-alias tw="launch twitch"
-alias yt="launch newpipe-sponsorblock"
-alias em="launch email"
-
-alias app="launch \$(launch --list | tr \"[:upper:]\" \"[:lower:]\" | uniq | fzf)"
 
 export PATH="$PATH:$HOME/scripts:$HOME/.cargo/bin"
 export GPG_TTY=$(tty)

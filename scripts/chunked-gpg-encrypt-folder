@@ -15,6 +15,7 @@ FOLDER=$1
 TARGETS=(${@:2})
 [ -z "$FOLDER" ] && exit
 [ -z "$TARGETS" ] && exit
+test "$QUICK" = "0" && CAT="glow -" || CAT="tee"
 
 function first-level-chunks() {
 	# CHUNK_SIZE First Level Elements Per Chunk
@@ -24,10 +25,10 @@ function first-level-chunks() {
 	for((i=0; i < ${#TARGETS[@]}; i+=CHUNK_SIZE))
 	do
 		CHUNK=("${TARGETS[@]:i:CHUNK_SIZE}")
-		echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | glow -
+		echo "Starting encryption on chunk N#$i. Elements in this group: ${CHUNK[*]}" | $CAT
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
-			echo "Using paranoid mode and key N#$KN" | glow -
+			echo "Using paranoid mode and key N#$KN" | $CAT
 			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
 			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}
@@ -46,10 +47,10 @@ me ".env"))
         for((i=0; i < ${#RECU_TARGETS[@]}; i+=CHUNK_SIZE))
         do
                 CHUNK=("${RECU_TARGETS[@]:i:CHUNK_SIZE}")
-                echo "Starting encryption on chunk N#$i. Elements in this group: n.${#CHUNK[@]}" | glow -
+                echo "Starting encryption on chunk N#$i. Elements in this group: n.${#CHUNK[@]}" | $CAT
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
-			echo "Using paranoid mode and key N#$KN" | glow -
+			echo "Using paranoid mode and key N#$KN" | $CAT
 			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
                 	gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}
@@ -86,10 +87,10 @@ function file-size-chunks() {
 		if [ "${CHUNK[*]}" == "" ]; then
 			break
 		fi
-		echo "Starting encryption on chunk N#$i. Chunk size: $S" | glow -
+		echo "Starting encryption on chunk N#$i. Chunk size: $S" | $CAT
 		if [ $PARANOID -eq 1 ]; then
 			KN=$((i % 5 + 1))
-			echo "Using paranoid mode and key N#$KN" | glow -
+			echo "Using paranoid mode and key N#$KN" | $CAT
 			gpg-encrypt-folder "$FOLDER+$i" "K$KN" "$QUICK" ${CHUNK[*]}
 		else
 			gpg-encrypt-folder "$FOLDER+$i" "$EMAIL" "$QUICK" ${CHUNK[*]}

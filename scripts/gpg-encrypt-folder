@@ -9,20 +9,21 @@ TARGETS=${@:4}
 [ -z "$FOLDER" ] && exit
 [ -z "$TARGETS" ] && exit
 [ "$QUICK" = "0" ] && BAR="pv" || BAR="tee"
+[ "$QUICK" = "0" ] && CAT="glow -" || CAT="tee"
 
 shopt -s extglob
 export GPG_TTY=$(tty)
 
-echo "Using *gzip + tar* utilities to compress the selected targets into **$FOLDER.tar.gz**" | glow -
+echo "Using *gzip + tar* utilities to compress the selected targets into **$FOLDER.tar.gz**" | $CAT
 
 SIZE=$(printf '%q' $TARGETS | du -sbc | tail -n1 | awk '{print $1}')
 [ "$QUICK" -eq "0" ] && tar czf - $TARGETS -P | pv -s $SIZE | gzip > $FOLDER.tar.gz || tar czf - $TARGETS -P | gzip > $FOLDER.tar.gz
 
-echo "Using *gpg* utility to encrypt the archive **$FOLDER.tar.gz** using recipient email **$EMAIL**" | glow -
+echo "Using *gpg* utility to encrypt the archive **$FOLDER.tar.gz** using recipient email **$EMAIL**" | $CAT
 
 $BAR < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > $FOLDER.tar.gz.gpg
 
-echo "Removing unnecessary files" | glow -
+echo "Removing unnecessary files" | $CAT
 
 rm -fv $TARGETS $FOLDER.tar.gz
 shopt -u extglob

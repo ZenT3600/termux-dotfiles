@@ -13,6 +13,7 @@ fi
 
 FOLDER=$1
 [ -z "$FOLDER" ] && exit
+test "$QUICK" = "0" && CAT="glow -" || CAT="tee"
 
 if [ $PARANOID -eq 1 ]; then
 	echo -n "Password: "
@@ -20,7 +21,7 @@ if [ $PARANOID -eq 1 ]; then
 fi
 
 find $FOLDER+* -maxdepth 1 | while read f; do
-	echo "Starting decryption on chunk $f" | glow -
+	echo "Starting decryption on chunk $f" | $CAT
 	gpg-decrypt-folder "$(basename $f | cut -f 1 -d '.')" "$PASSWD" "$QUICK"
 done
 shopt -u extglob

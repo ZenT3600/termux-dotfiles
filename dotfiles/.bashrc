@@ -7,9 +7,8 @@ function inputfromvim() {
 
 function header() {
 	neofetch
-	echo
-	echo -e "# Battery:\n> $(termux-battery-status | jq -r .percentage)%" | glow -
-	echo -e "# Notifications:\n> $(termux-notification-list | jq -r .[].id | wc -l)" | glow -
+	# echo -e "# Battery:\n> $(termux-battery-status | jq -r .percentage)%" | glow -
+	# echo -e "# Notifications:\n> $(termux-notification-list | jq -r .[].id | wc -l)" | glow -
 }
 
 alias contactnames="termux-contact-list | jq -r .[].name"
@@ -42,7 +41,4 @@ export GPG_TTY=$(tty)
 
 PS1='\[\e[0;1m\][\[\e[0;2m\]\t\[\e[0;1m\]] \[\e[0;36m\]\u\[\e[0m\]@\[\e[0;36m\]\h \[\e[0m\](\[\e[0;36m\]\w\[\e[0m\]) \$\[\e[0m\] '
 
-# websocat -t ws-l:127.0.0.1:1234 broadcast:mirror: 1> /dev/null || echo "Notification Server Already Started." || echo "Notification Websocket Started!"
-# websocat ws://127.0.0.1:8080/ &
-# [ -z "${TMUX}" ] && notificationd &
 [ -z "${TMUX}" ] && header

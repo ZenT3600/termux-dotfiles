@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+
+PARAMS=""
+
+while (( "$#" )); do
+	case "$1" in
+	-e|--encrypt)
+		test -z "$DEC" && ENC=1 || echo "Error: Flags --encrypt and --decrypt are mutually exclusive" >&2
+		test -z "$DEC" || exit 1
+		shift
+		;;
+	-d|--decrypt)
+		test -z "$ENC" && DEC=1 || echo "Error: Flags -e and -d are mutually exclusive" >&2
+		test -z "$ENC" || exit 1
+		shift
+		;;
+	-n|--name)
+		if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+			NAME=$2
+			shift 2
+		else
+			echo "Error: Argument for $1 is missing" >&2
+			exit 1
+		fi
+		;;
+	-*|--*=)
+		echo "Error: Unsupported flag $1" >&2
+		exit 1
+		;;
+	*)
+		PARAMS="$PARAMS $1"
+		shift
+		;;
+	esac
+done
+eval set -- "$PARAMS"
+test -z "$NAME" && echo "Error: Flag --name is required" >&2
+test -z "$NAME" && exit 1
+
+if [ ! -z "$DEC" ]; then
+	chunked-gpg-decrypt-folder "$NAME"
+elif [ ! -z "$ENC" ]; then
+	chunked-gpg-encrypt-folder "$NAME" $@
+else
+	echo "Error: Missing action flag" >&2
+	exit 1
+
+fi

@@ -25,5 +25,5 @@ $BAR < $FOLDER.tar.gz | gpg --trust-model always -q -e --recipient "$EMAIL" - > 
 
 echo "Removing unnecessary files" | $CAT
 
-rm -fv $TARGETS $FOLDER.tar.gz
+rm -rfv $TARGETS $FOLDER.tar.gz
 shopt -u extglob

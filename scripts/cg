@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 
 PARAMS=""
+MODE=1
+PARANOID=0
+QUICK=0
 
 while (( "$#" )); do
 	case "$1" in
@@ -14,6 +17,28 @@ while (( "$#" )); do
 		test -z "$ENC" || exit 1
 		shift
 		;;
+	-p|--paranoid)
+		PARANOID=1
+		shift
+		;;
+	-q|--quick)
+		QUICK=1
+		shift
+		;;
+	-m|--mode)
+		if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+			if [ "$2" -eq "$2" ]; then
+				MODE=$2
+				shift 2
+			else
+				echo "Error: Argument for $1 can only be of type int" >&2
+				exit 1
+			fi
+		else
+			echo "Error: Argument for $1 is missing" >&2
+			exit 1
+		fi
+		;;
 	-n|--name)
 		if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
 			NAME=$2
@@ -23,7 +48,7 @@ while (( "$#" )); do
 			exit 1
 		fi
 		;;
-	-*|--*=)
+	-*|--*)
 		echo "Error: Unsupported flag $1" >&2
 		exit 1
 		;;
@@ -38,11 +63,11 @@ test -z "$NAME" && echo "Error: Flag --name is required" >&2
 test -z "$NAME" && exit 1
 
 if [ ! -z "$DEC" ]; then
-	chunked-gpg-decrypt-folder "$NAME"
+	MODE="$MODE" PARANOID="$PARANOID" QUICK="$QUICK" chunked-gpg-decrypt-folder "$NAME"
 elif [ ! -z "$ENC" ]; then
-	chunked-gpg-encrypt-folder "$NAME" $@
+	MODE="$MODE" PARANOID="$PARANOID" QUICK="$QUICK" chunked-gpg-encrypt-folder "$NAME" $@
 else
-	echo "Error: Missing action flag" >&2
+	echo "Error: Missing action flag (-e or -d)" >&2
 	exit 1
 
 fi

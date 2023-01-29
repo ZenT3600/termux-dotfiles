@@ -6,9 +6,9 @@ shopt -s extglob
 if [ -f .env ]; then
 	export $(cat .env | xargs)
 else
-	MODE=1
-	PARANOID=0
-	QUICK=0
+	test -z "$MODE" && MODE=1
+	test -z "$PARANOID" &&BPARANOID=0
+	test -z "$QUICK" && QUICK=0
 fi
 
 FOLDER=$1

@@ -3,9 +3,9 @@
 if [ -f .env ]; then
 	export $(cat .env | xargs)
 else
-	MODE=1
-	PARANOID=0
-	QUICK=0
+	test -z "$MODE" && MODE=1
+	test -z "$PARANOID" && PARANOID=0
+	test -z "$QUICK" && QUICK=0
 fi
 
 set -e
@@ -41,9 +41,7 @@ function file-count-chunks() {
         CHUNK_SIZE=512
 	EMAIL=$(whatismyemail)
 
-	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -na
-me ".env"))
-
+	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -name ".env"))
         for((i=0; i < ${#RECU_TARGETS[@]}; i+=CHUNK_SIZE))
         do
                 CHUNK=("${RECU_TARGETS[@]:i:CHUNK_SIZE}")
@@ -68,7 +66,6 @@ function file-size-chunks() {
 	EMAIL=$(whatismyemail)
 
 	RECU_TARGETS=($(find ${TARGETS[*]} -type f -not -name ".env"))
-
 	while true
 	do
 		CHUNK=()
